@@ -19,6 +19,14 @@ local function AddRenderLayer(layerName)
     return layerName
 end
 
+-- This function to print all the renderLayer.
+function ShowRenderLayers()
+    print("LayerName\tLayerIndex")
+    for k, v in pairs(gRenderLayers) do
+        print(k.."\t"..v);
+    end
+end
+
 -- Add renderItem the the gRenderItemSet, use the index as key.
 function AddRenderItem(renderItemObject)
     gRenderItemSet[#gRenderItemSet + 1] = renderItemObject
