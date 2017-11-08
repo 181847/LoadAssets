@@ -1,12 +1,12 @@
 require "class"
 textSet = require "TextureSet"
-Material = class();
+Material = class()
 
 -- Store the material that will use to be rendering.
 gMaterialSet = {}
 
 -- Create a material with the name, through which we will find it in the gMaterialSet.
-function material:ctor(name)
+function Material:ctor(name)
     self.name = name
     self.diffuseAlbedo = {1.0, 1.0, 1.0, 1.0}
     self.fresnelR = {0.01, 0.01, 0.01}
@@ -17,17 +17,17 @@ function material:ctor(name)
     self.normalMap = nil
 end
 
-function material:showDetail()
-    print(string.format("\"%s\"", self.name, ))
-    print(string.format("diffuseAlbedo: %f,\t%f,\t%f,\t%f", unpack(self.diffuseAlbedo)))
-    print(string.format("fresnelR: %f,\t%f,\t%f", unpack(self.fresnelR)))
-    print(string.format("roughness: %f", self.roughness)
+function Material:showDetail()
+    print(string.format("******Material \"%s\" detail:", self.name))
+    print(string.format("diffuseAlbedo:\t%f,\t%f,\t%f,\t%f", table.unpack(self.diffuseAlbedo)))
+    print(string.format("fresnelR:\t%f,\t%f,\t%f", table.unpack(self.fresnelR)))
+    print(string.format("roughness:\t%f", self.roughness))
     
     if self.diffuseMap then
-        print("diffuseMap: "..self.diffuseMap)
+        print("diffuseMap:\t"..self.diffuseMap)
     end
     
     if self.normalMap then
-        print("diffuseMap: "..self.normalMap)
+        print("diffuseMap:\t"..self.normalMap)
     end
 end
