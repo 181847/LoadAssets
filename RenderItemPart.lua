@@ -26,8 +26,17 @@ end
 
 -- For the simplity, the model in the objfile is all in the one renderItem,
 -- no matter how many groups in the file.
+-- Remaind that the three argument are all string,
+-- we don't use any reference in different object.
 function RenderItem:ctor(objFile, material, renderLayerName)
-    self.objFileName = objFile
+    self.objFile = objFile
     self.renderLayer = AddRenderLayer(renderLayerName)
     self.material = material
+end
+
+function RenderItem:showDetail()
+    print("******* One RenderItem *********")
+    print("Obj file from:\t"..self.objFile)
+    print("Render Layer:\t"..self.renderLayer)
+    print("Material:\t"..self.material)
 end
