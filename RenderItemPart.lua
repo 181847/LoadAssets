@@ -37,6 +37,6 @@ end
 function RenderItem:showDetail()
     print("******* One RenderItem *********")
     print("Obj file from:\t"..self.objFile)
-    print("Render Layer:\t"..self.renderLayer)
     print("Material:\t"..self.material)
+    print("Render Layer:\t"..self.renderLayer)
 end
