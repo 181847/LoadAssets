@@ -1,5 +1,5 @@
 require "class"
-textSet = require "TextureSet"
+textSet = require "TexturePart"
 Material = class()
 
 -- Store the material that will use to be rendering.
