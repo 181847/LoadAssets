@@ -1,3 +1,5 @@
+-- refer to https://blog.codingnow.com/cloud/LuaOO
+
 local _class={}
  
 function class(super)
