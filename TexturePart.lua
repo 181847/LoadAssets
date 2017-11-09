@@ -1,13 +1,22 @@
-require "class"
+require "NameObject"
 
-local module = {};
+Texture = class(NameObject)
 
-module.TextureSet = {}
+local TextPart = {};
 
-function module.add(textureName, texturePath)
-    -- Store the path accroding to the name,
-    -- we will use the name for other object(such as material) to find the texture.
-    module.TextureSet[textureName] = texturePath;
+TextPart.TextureSet = {}
+TextPart.Texture = Texture
+
+function Texture:ctor(name, textureFile)
 end
 
-return module
+function Texture:addToGlobalSet()
+    TextPart.TextureSet[self.name] = self
+end
+
+function Texture:showDetail()
+    print("******** Geometry:\t"..self.name))
+    print("Obj file from:\t"..self.objFile)
+end
+
+return TextPart

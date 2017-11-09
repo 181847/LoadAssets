@@ -1,13 +1,16 @@
-require "class"
+require "NameObject"
 textSet = require "TexturePart"
-Material = class()
 
+Material = class(NameObject)
+
+local MatPart = {}
+
+MatPart.Material = Material
 -- Store the material that will use to be rendering.
-gMaterialSet = {}
+MatPart.MaterialSet = {}
 
--- Create a material with the name, through which we will find it in the gMaterialSet.
+-- Create a material with the name, through which we will find it in the MatPart.gMaterialSet.
 function Material:ctor(name)
-    self.name = name
     self.diffuseAlbedo = {1.0, 1.0, 1.0, 1.0}
     self.fresnelR = {0.01, 0.01, 0.01}
     self.roughness = 0.5;
@@ -31,3 +34,10 @@ function Material:showDetail()
         print("diffuseMap:\t"..self.normalMap)
     end
 end
+
+-- Add the Material instance to the 
+function Material:addToGlobalSet(mat)
+    MatPart.gMaterialSet[mat.name] = mat
+end
+
+return MatPart
