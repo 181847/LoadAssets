@@ -15,12 +15,12 @@ RItemPart.RenderItemSet = {}
 --and returen the name itself.
 function RItemPart.AddRenderLayer(layerName)
     assert(type(layerName) == 'string', 'The Name of RenderLayer should be a string.')
-    allNum = RItemPart.gRenderLayers.n
+    allNum = RItemPart.RenderLayers.n
     
     -- Is the name already exist?
-    if gRenderLayers[layerName] == nil then
-        gRenderLayers[layerName] = allNum
-        RItemPart.gRenderLayers.n = allNum + 1
+    if RItemPart.RenderLayers[layerName] == nil then
+        RItemPart.RenderLayers[layerName] = allNum
+        RItemPart.RenderLayers.n = allNum + 1
     end
     return layerName
 end
@@ -28,7 +28,7 @@ end
 -- This function to print all the renderLayer.
 function RItemPart.ShowRenderLayers()
     print("LayerName\tLayerIndex")
-    for k, v in pairs(gRenderLayers) do
+    for k, v in pairs(RItemPart.RenderLayers) do
         print(k.."\t\t"..v);
     end
 end
@@ -37,8 +37,8 @@ end
 -- no matter how many groups in the file.
 -- Remaind that the three argument are all string,
 -- we don't use any reference in different object.
-function RenderItem:ctor(objFile, material, renderLayerName)
-    self.objFile = objFile
+function RenderItem:ctor(geoName, material, renderLayerName)
+    self.geometry = geoName
     self.renderLayer = RItemPart.AddRenderLayer(renderLayerName)
     self.material = material
 end
@@ -50,7 +50,7 @@ end
 
 function RenderItem:showDetail()
     print("******* One RenderItem *********")
-    print("Obj file from:\t"..self.objFile)
+    print("Geometry:\t"..self.geometry)
     print("Material:\t"..self.material)
     print("Render Layer:\t"..self.renderLayer)
 end

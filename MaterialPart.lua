@@ -36,8 +36,8 @@ function Material:showDetail()
 end
 
 -- Add the Material instance to the 
-function Material:addToGlobalSet(mat)
-    MatPart.gMaterialSet[mat.name] = mat
+function Material:addToGlobalSet()
+    MatPart.MaterialSet[self.name] = self
 end
 
 return MatPart
