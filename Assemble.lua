@@ -12,27 +12,31 @@ RItemPart = require("RenderItemPart")
 -- Is there any error with all the ritem?
 local isError = false
 
+-- use a local var to refer to the set, 
+-- because the name is too long.
+local ritemSet = RItemPart.RenderItemSet
 
 -- from the ritem aspect.
-for i, v in pairs(RItemPart.RenderItemSet) do
+for i = 1, #ritemSet do
+    
     -- Is the Ritem an error?
     local isErrorRitem = false
     
     -- check geometry, here we don't check if the obj file exist,
     -- just the geometry.
-    if GeoPart.GeometrySet[v.geometry] == nil then
+    if GeoPart.GeometrySet[ritemSet[i].geometry] == nil then
         print("error: missing geometry")
         isErrorRitem = true
     end
     
     -- check material
-    if MatPart.MaterialSet[v.material] == nil then
+    if MatPart.MaterialSet[ritemSet[i].material] == nil then
         print("error: missing material")
         isErrorRitem = true
     end
     
     if isErrorRitem then
-        v:showDetail()
+        ritemSet[i]:showDetail()
         -- notify the outer error flag.
         isError = true
     end
