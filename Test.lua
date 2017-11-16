@@ -1,5 +1,10 @@
 -- This script is used to test all the module is correct.
 
+-- Create a local enviroment for local test.
+_ENV = {_G = _G}
+-- set the metatable, find the missing var and function
+-- in the _G enviroment.
+_G.setmetatable(_ENV, {__index = _G})
 TexPart   = require("TexturePart")
 MatPart   = require("MaterialPart")
 GeoPart   = require("GeometryPart")
