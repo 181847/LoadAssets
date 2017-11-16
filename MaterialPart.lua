@@ -1,5 +1,5 @@
 require "NameObject"
-textSet = require "TexturePart"
+local textSet = require "TexturePart"
 
 Material = class(NameObject)
 
