@@ -1,78 +1,95 @@
-MatPart = require("MaterialPart")
-TexPart = require("TexturePart")
-GeoPart = require("GeometryPart")
-RItemPart = require("RenderItemPart")
 
--- This script is used to check all the Material/Texture/RenderItem
--- exist, because all the reference is by name.
--- In the RenderItem, we will try to check that the 
--- Material exist,
--- and in the material, all the texture exist.
-
--- Is there any error with all the ritem?
-local isError = false
-
--- use a local var to refer to the set, 
--- because the name is too long.
-local ritemSet = RItemPart.RenderItemSet
-
--- from the ritem aspect.
-for i = 1, #ritemSet do
+function Assemble()
+    -- restrict the var name inside the function
+    _ENV = {_G = _G}
+    _G.setmetatable(_ENV, {__index = _G})
     
-    -- Is the Ritem an error?
-    local isErrorRitem = false
+    MatPart = require("MaterialPart")
+    TexPart = require("TexturePart")
+    GeoPart = require("GeometryPart")
+    RItemPart = require("RenderItemPart")
     
-    -- check geometry, here we don't check if the obj file exist,
-    -- just the geometry.
-    if GeoPart.GeometrySet[ritemSet[i].geometry] == nil then
-        print("error: missing geometry")
-        isErrorRitem = true
+    -- store all the Part in the assembleSet
+    local assembleSet = {
+        MatPart = MatPart
+        TexPart = TexPart
+        GeoPart = GeoPart
+        RItemPart = RItemPart
+    }
+    
+    -- This script is used to check all the Material/Texture/RenderItem
+    -- exist, because all the reference is by name.
+    -- In the RenderItem, we will try to check that the 
+    -- Material exist,
+    -- and in the material, all the texture exist.
+    
+    -- Is there any error with all the ritem?
+    local isError = false
+    
+    -- use a local var to refer to the set, 
+    -- because the name is too long.
+    local ritemSet = RItemPart.RenderItemSet
+    
+    -- from the ritem aspect.
+    for i = 1, #ritemSet do
+        
+        -- Is the Ritem an error?
+        local isErrorRitem = false
+        
+        -- check geometry, here we don't check if the obj file exist,
+        -- just the geometry.
+        if GeoPart.GeometrySet[ritemSet[i].geometry] == nil then
+            print("error: missing geometry")
+            isErrorRitem = true
+        end
+        
+        -- check material
+        if MatPart.MaterialSet[ritemSet[i].material] == nil then
+            print("error: missing material")
+            isErrorRitem = true
+        end
+        
+        if isErrorRitem then
+            ritemSet[i]:showDetail()
+            -- notify the outer error flag.
+            isError = true
+        end
     end
     
-    -- check material
-    if MatPart.MaterialSet[ritemSet[i].material] == nil then
-        print("error: missing material")
-        isErrorRitem = true
+    -- from the material aspect, missing any texture?
+    -- again, now we don't care about the real file.
+    for k, m in pairs(MatPart.MaterialSet) do
+        -- Is the material an error?
+        local isErrorMaterial = false
+        
+        -- check diffuse map
+        if m.diffuseMap ~= nil and TexPart.TextureSet[m.diffuseMap] == nil then
+            print("error: missing diffuseMap")
+            isErrorMaterial = true
+        end
+        
+        -- check normal map
+        if m.normalMap ~= nil and TexPart.TextureSet[m.normalMap] == nil then
+            print("error: missing normalMap")
+            isErrorMaterial = true
+        end
+        
+        if isErrorMaterial then
+            m:showDetail()
+            -- notify the outer error flag.
+            isError = true
+        end
     end
     
-    if isErrorRitem then
-        ritemSet[i]:showDetail()
-        -- notify the outer error flag.
-        isError = true
+    
+    -- conclude
+    if isError then
+        print("Assembling failed!")
+    else
+        print("Assembling success.")
     end
+    
+    return isError, assembleSet
 end
 
--- from the material aspect, missing any texture?
--- again, now we don't care about the real file.
-for k, m in pairs(MatPart.MaterialSet) do
-    -- Is the material an error?
-    local isErrorMaterial = false
-    
-    -- check diffuse map
-    if m.diffuseMap ~= nil and TexPart.TextureSet[m.diffuseMap] == nil then
-        print("error: missing diffuseMap")
-        isErrorMaterial = true
-    end
-    
-    -- check normal map
-    if m.normalMap ~= nil and TexPart.TextureSet[m.normalMap] == nil then
-        print("error: missing normalMap")
-        isErrorMaterial = true
-    end
-    
-    if isErrorMaterial then
-        m:showDetail()
-        -- notify the outer error flag.
-        isError = true
-    end
-end
-
-
--- conclude
-if isError then
-    print("Assembling failed!")
-else
-    print("Assembling success.")
-end
-
-return isError
+return Assemble
