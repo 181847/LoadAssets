@@ -11,9 +11,9 @@ function Assemble()
     
     -- store all the Part in the assembleSet
     local assembleSet = {
-        MatPart = MatPart
-        TexPart = TexPart
-        GeoPart = GeoPart
+        MatPart = MatPart,
+        TexPart = TexPart,
+        GeoPart = GeoPart,
         RItemPart = RItemPart
     }
     
