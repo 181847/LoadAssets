@@ -10,6 +10,8 @@ MatPart   = require("MaterialPart")
 GeoPart   = require("GeometryPart")
 RItemPart = require("RenderItemPart")
 
+assemble  = require("Assemble")
+
 test_t_1 = Texture.new("brick", "d:/texture/brick.dds")
 test_t_2 = Texture.new("tree", "d:/texture/tree.dds")
 
@@ -39,8 +41,7 @@ RItemPart.ShowRenderLayers()
 print()
 
 -- assemble by empty set
-assem = loadfile("Assemble.lua")
-assem()
+assemble()
 
 print()
 
@@ -58,4 +59,4 @@ test_g_2:addToGlobalSet()
 test_ritem_1:addToGlobalSet()
 test_ritem_2:addToGlobalSet()
 -- assemble again
-assem()
+assemble()
