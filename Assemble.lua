@@ -14,7 +14,8 @@ function Assemble()
         MatPart = MatPart,
         TexPart = TexPart,
         GeoPart = GeoPart,
-        RItemPart = RItemPart
+        RItemPart = RItemPart,
+        MaterialQueue = {n = 0}, -- use the MaterialSet to store the Material using number as key, n store the counter.
     }
     
     -- This script is used to check all the Material/Texture/RenderItem
@@ -74,10 +75,14 @@ function Assemble()
             isErrorMaterial = true
         end
         
+        -- some error
         if isErrorMaterial then
             m:showDetail()
             -- notify the outer error flag.
             isError = true
+        else -- no error, add to a map using number as key.
+            assembleSet.MaterialQueue.n = assembleSet.MaterialQueue.n + 1
+            assembleSet.MaterialQueue[assembleSet.MaterialQueue.n] = m
         end
     end
     
@@ -88,6 +93,9 @@ function Assemble()
     else
         print("Assembling success.")
     end
+    
+    -- show the statics
+    print(string.format("Materials Count: \t\t%d", assembleSet.MaterialQueue.n))
     
     return isError, assembleSet
 end
