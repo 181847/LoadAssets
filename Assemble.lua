@@ -1,33 +1,57 @@
+-- This script is used to check all the Material/Texture/RenderItem
+-- exist, because all the reference is by name.
+-- In the RenderItem, we will try to check that the 
+-- Material exist,
+-- and in the material, all the texture exist.
+-- restrict the var name inside the function
 
-function Assemble()
-    -- restrict the var name inside the function
-    _ENV = {_G = _G}
-    _G.setmetatable(_ENV, {__index = _G})
+_ENV = {_G = _G}
+_G.setmetatable(_ENV, {__index = _G})
+MatPart = require("MaterialPart")
+TexPart = require("TexturePart")
+GeoPart = require("GeometryPart")
+RItemPart = require("RenderItemPart")
+
+-- useful function to push asset into some queue(
+-- assembleSet{MaterialQueue,TextureQueue, RenderItemQueue, GeometryQueue}.
+function PushAsset(ast, targetQueue)
+    local newCount = targetQueue.n + 1
+    targetQueue.n = newCount
+    targetQueue[newCount] = ast
+    ast.index = newCount
+end
+
+function PushMaterial(mat)
+    PushAsset(mat, assembleSet.MaterialQueue)
+end
+
+function PushTexture(text)
+    PushAsset(text, assembleSet.TextureQueue)
+end
+
+function PushGeometry(geo)
+    PushAsset(geo, assembleSet.GeometryQueue)
+end
+
+function PushRenderItem(ritem)
+    PushAsset(ritem, assembleSet.RenderItemQueue)
+end
+
+
+-- check and push geometry
+function CheckGeometries()
+    local haveErrorGeometry = false
+    for k, g in pairs(GeoPart.GeometrySet) do
+        local isErrorGeometry = false
+        
+        PushGeometry(g)
+    end
+end
+
+-- check the renderItems
+function CheckRenderItems()
     
-    MatPart = require("MaterialPart")
-    TexPart = require("TexturePart")
-    GeoPart = require("GeometryPart")
-    RItemPart = require("RenderItemPart")
-    
-    -- store all the Part in the assembleSet
-    local assembleSet = {
-        MatPart = MatPart,
-        TexPart = TexPart,
-        GeoPart = GeoPart,
-        RItemPart = RItemPart,
-        MaterialQueue = {n = 0}, -- use the MaterialSet to store the Material using number as key, n store the counter.
-        TextureQueue = {n = 0}
-    }
-    
-    -- This script is used to check all the Material/Texture/RenderItem
-    -- exist, because all the reference is by name.
-    -- In the RenderItem, we will try to check that the 
-    -- Material exist,
-    -- and in the material, all the texture exist.
-    
-    -- Is there any error with all the ritem?
-    local isError = false
-    
+    local haveErrorRitem = false
     -- use a local var to refer to the set, 
     -- because the name is too long.
     local ritemSet = RItemPart.RenderItemSet
@@ -38,37 +62,49 @@ function Assemble()
         -- Is the Ritem an error?
         local isErrorRitem = false
         
+        ritem = ritemSet[i]
+        
         -- check geometry, here we don't check if the obj file exist,
         -- just the geometry.
-        if GeoPart.GeometrySet[ritemSet[i].geometry] == nil then
+        if GeoPart.GeometrySet[ritem.geometry] == nil then
             print("error: missing geometry")
             isErrorRitem = true
         end
         
         -- check material
-        if MatPart.MaterialSet[ritemSet[i].material] == nil then
+        if MatPart.MaterialSet[ritem.material] == nil then
             print("error: missing material")
             isErrorRitem = true
         end
         
         if isErrorRitem then
-            ritemSet[i]:showDetail()
+            ritem:showDetail()
             -- notify the outer error flag.
-            isError = true
+            haveErrorRitem = true
+        else
+            PushRenderItem(ritem)
         end
     end
     
+    return haveErrorRitem
+end
+
+-- check the Textures and push it into the queue
+function CheckTextures()
+    local haveErrorTexture = false
     -- arrange texture this must before the material
     for k, t in pairs(TexPart.TextureSet) do
         local isErrorTexture = false
         
-        -- for now, don't check any error
-        assembleSet.TextureQueue.n = assembleSet.TextureQueue.n + 1
-        -- add a index to the Texture
-        t.index = assembleSet.TextureQueue.n
-        assembleSet.TextureQueue[t.index] = t;
+        PushTexture(t)
     end
     
+    return haveErrorTexture
+end
+
+-- check and push the material
+function CheckMaterials()
+    local haveErrorMat = false
     -- from the material aspect, missing any texture?
     -- again, now we don't care about the real file.
     for k, m in pairs(MatPart.MaterialSet) do
@@ -97,13 +133,39 @@ function Assemble()
         if isErrorMaterial then
             m:showDetail()
             -- notify the outer error flag.
-            isError = true
+            haveErrorMat = true
         else -- no error, add to a map using number as key.
-            assembleSet.MaterialQueue.n = assembleSet.MaterialQueue.n + 1
-            assembleSet.MaterialQueue[assembleSet.MaterialQueue.n] = m
+            PushMaterial(m)
         end
     end
+    return haveErrorMat
+end
+
+-- THE KEY FUNCTION TO BE RETURNED
+function Assemble()    
+    -- clear the previous queue
+    assembleSet = {
+        -- all the assets will be arrangeed into a array
+        MaterialQueue = {n = 0}, 
+        TextureQueue = {n = 0},
+        GeometryQueue = {n = 0},
+        RenderItemQueue = {n = 0}
+    }
     
+    
+    -- Is there any error with all the ritem?
+    local isError = false
+    
+    -- the Geomentry must be checked before the RenderItem
+    print('ck geo')
+    isError = CheckGeometries()
+    print('ck ritem')
+    isError = CheckRenderItems()
+    -- the texture must be check before the Material
+    print('ck tx')
+    isError = CheckTextures()
+    print('ch mt')
+    isError = CheckMaterials()
     
     -- conclude
     if isError then
@@ -113,7 +175,10 @@ function Assemble()
     end
     
     -- show the statics
-    print(string.format("Materials Count: \t\t%d", assembleSet.MaterialQueue.n))
+    print("Texture Count:"..assembleSet.TextureQueue.n)
+    print("Material Count:"..assembleSet.MaterialQueue.n)
+    print("Geometry Count:"..assembleSet.GeometryQueue.n)
+    print("RenderItem Count:"..assembleSet.RenderItemQueue.n)
     
     return isError, assembleSet
 end
