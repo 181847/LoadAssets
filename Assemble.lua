@@ -16,6 +16,7 @@ function Assemble()
         GeoPart = GeoPart,
         RItemPart = RItemPart,
         MaterialQueue = {n = 0}, -- use the MaterialSet to store the Material using number as key, n store the counter.
+        TextureQueue = {n = 0}
     }
     
     -- This script is used to check all the Material/Texture/RenderItem
@@ -57,22 +58,39 @@ function Assemble()
         end
     end
     
+    -- arrange texture this must before the material
+    for k, t in pairs(TexPart.TextureSet) do
+        local isErrorTexture = false
+        
+        -- for now, don't check any error
+        assembleSet.TextureQueue.n = assembleSet.TextureQueue.n + 1
+        -- add a index to the Texture
+        t.index = assembleSet.TextureQueue.n
+        assembleSet.TextureQueue[t.index] = t;
+    end
+    
     -- from the material aspect, missing any texture?
     -- again, now we don't care about the real file.
     for k, m in pairs(MatPart.MaterialSet) do
         -- Is the material an error?
         local isErrorMaterial = false
         
+        t = TexPart.TextureSet[m.diffuseMap]
         -- check diffuse map
-        if m.diffuseMap ~= nil and TexPart.TextureSet[m.diffuseMap] == nil then
+        if m.diffuseMap ~= nil and t == nil then
             print("error: missing diffuseMap")
             isErrorMaterial = true
+        elseif m.diffuseMap ~= nil then
+            m.diffuseMapIndex = t.index
         end
         
+        t = TexPart.TextureSet[m.normalMap]
         -- check normal map
-        if m.normalMap ~= nil and TexPart.TextureSet[m.normalMap] == nil then
+        if m.normalMap ~= nil and t == nil then
             print("error: missing normalMap")
             isErrorMaterial = true
+        elseif m.normalMap ~= nil then
+            m.normalMapIndex = t.index
         end
         
         -- some error
