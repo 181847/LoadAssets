@@ -26,6 +26,7 @@ function Material:showDetail()
     print(string.format("fresnelR:\t%f,\t%f,\t%f", table.unpack(self.fresnelR)))
     print(string.format("roughness:\t%f", self.roughness))
     
+    
     if self.diffuseMap then
         print("diffuseMap:\t"..self.diffuseMap)
     end
