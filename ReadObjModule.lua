@@ -113,8 +113,6 @@ function module.readFile(file, meshData, subMesh)
             for vertex in string.gmatch(line, patternVertexIndices) do
                 numbers = readNumbers(vertex)
                 
-                print(numbers[1], numbers[2], numbers[3])
-                
                 -- sometimes there is not the tangentU, we just add a index 0
                 while (#numbers < 4) do
                     numbers[#numbers + 1] = 0
