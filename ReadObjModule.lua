@@ -14,7 +14,7 @@ patternVertexIndices = '%d*/%d*/%d*'
 patternSubGeometry = 'g%s.*'
 notSubGeometry = 'g default'
 
-patternShape = '^g%s+(%w+)'
+patternShape = '^g%s+(%w[%w%s]+)'
 
 patternNumber = '%d*%.?%d*'
 
