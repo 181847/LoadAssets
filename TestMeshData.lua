@@ -1,16 +1,17 @@
-md = require("MeshData")
-a = md.new()
-a:show()
-a:help()
-a:addPosition(1.0, 0.5, 1.0)
+module = require('ReadObjModule')
 
-print('After modified.')
-a:show()
+mesh, subMesh = module.readFile('Tank.obj')
 
-a:addNormal(0.2, 0.2, 0.2)
-a:addTangentU(0.3, 0.3, 0.3)
-a:addTextureCoord(0.4, 0.4)
+mesh2, subMesh2 = module.readFile('shape.obj')
+mesh3, subMesh3 = module.readFile('shapeG.obj')
 
-a:addVertex(1, 1, 1, 1)
-a:addIndex(1)
-a:show()
+mesh:show()
+module.printSubMesh(subMesh)
+
+print('*******mesh2*******')
+mesh2:show()
+module.printSubMesh(subMesh2)
+
+print('*******mesh3*******')
+mesh3:show()
+module.printSubMesh(subMesh3)
