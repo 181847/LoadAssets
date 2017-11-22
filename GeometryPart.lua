@@ -1,8 +1,8 @@
-require "NameObject"
+require("NameObject")
 _ENV = {_G = _G}
-_G.setmetatable(_ENV, _G)
+_G.setmetatable(_ENV, {__index = _G})
 
-Geometry = class(FileObject)
+_G.Geometry = class(FileObject)
 -- MeshData is a C Module which will store the vertices and indices,
 -- the information will be loaded from the specific *.obj file
 MeshData = require("MeshData")
@@ -24,10 +24,10 @@ end
 function Geometry:showDetail()
     print("******** Geometry:\t"..self.name)
     print("Obj file from:\t"..self.file)
-    if (self.meshData) then
+    if self.meshData then
         self.meshData:show();
     end
-    if (self.subMeshes) then
+    if self.subMeshes then
         ObjModule.printSubMesh(self.subMeshes)
     end
 end
@@ -45,7 +45,7 @@ subMeshes
         3
         15
 --]]  
-function Geometry:readFfile()
+function Geometry:readFile()
     -- read the file,
     -- if the file dosen't exist,
     -- return nil
@@ -56,7 +56,7 @@ function Geometry:readFfile()
         return true
     else
         return false
-    end
-        
-    end
+    end        
 end
+
+return GeoPart
