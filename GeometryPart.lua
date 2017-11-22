@@ -12,6 +12,8 @@ local GeoPart = {}
 
 GeoPart.Geometry = Geometry
 GeoPart.GeometrySet = {}
+GeoPart.MeshData = MeshData
+GeoPart.FileModule = FileModule
 
 
 -- ************ Geometry Class Defination *******************
