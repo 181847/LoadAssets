@@ -45,6 +45,7 @@ subMeshes
         3
         15
 --]]  
+-- if error happend return true
 function Geometry:readFile()
     -- read the file,
     -- if the file dosen't exist,
@@ -53,9 +54,9 @@ function Geometry:readFile()
     if meshData and subMeshes then
         self.meshData = meshData
         self.subMeshes = subMeshese
-        return true
-    else
         return false
+    else
+        return true
     end        
 end
 

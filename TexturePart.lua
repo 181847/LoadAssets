@@ -1,6 +1,11 @@
 require "NameObject"
 
-Texture = class(FileObject)
+
+_ENV = {_G = _G}
+_G.setmetatable(_ENV, {__index = _G})
+
+
+_G.Texture = class(FileObject)
 
 local TextPart = {};
 

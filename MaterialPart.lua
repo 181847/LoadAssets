@@ -1,7 +1,10 @@
 require "NameObject"
+
+_ENV = {_G = _G}
+_G.setmetatable(_ENV, {__index = _G})
 local textSet = require "TexturePart"
 
-Material = class(NameObject)
+_G.Material = class(NameObject)
 
 local MatPart = {}
 

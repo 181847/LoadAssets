@@ -1,7 +1,10 @@
 require "NameObject"
 
+_ENV = {_G = _G}
+_G.setmetatable(_ENV, {__index = _G})
+
 -- The RenderItem class is global.
-RenderItem = class()
+_G.RenderItem = class()
 
 local RItemPart = {}
 
