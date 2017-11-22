@@ -51,15 +51,20 @@ end
 
 function CheckSingleRenderItem(renderItem)
     local isError = false;
-    if GeoPart.GeometrySet[renderItem.geometry] == nil then
+    geometry = GeoPart.GeometrySet[renderItem.geometry]
+    
+    -- is the geometry exist?
+    if geometry == nil then
         AssembleModule.logger('RenderItem Error:', 'cannot find geometry', '"'..ritem.geometry..' "')
-        isError = isError or true
+        isError = true
+    else
+        renderItem.geometryIndex = geometry.index
     end
     
     -- check material
     if MatPart.MaterialSet[renderItem.material] == nil then
         AssembleModule.logger('RenderItem Error:', 'cannot find material', '"'..ritem.material..' "')
-        isError = isError or true
+        isError = true
     end
     return isError
 end
