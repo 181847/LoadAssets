@@ -31,6 +31,11 @@ end
 function module.readFile(file, meshData, subMesh)
     file = io.open(file, 'r')
     
+    -- if file not exist return nil
+    if not file then
+        return nil
+    end
+    
     local meshData = meshData or md.new()
     local subMesh = sumMesh or {}
     local vindex = 0
