@@ -49,7 +49,7 @@ subMeshes
 function Geometry:readFile()
     -- read the file,
     -- if the file dosen't exist,
-    -- return nil
+    -- return true for there is an error
     local meshData, subMeshes = ObjModule.readFile(self.file)
     if meshData and subMeshes then
         self.meshData = meshData
