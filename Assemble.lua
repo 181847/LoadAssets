@@ -3,7 +3,7 @@
 -- In the RenderItem, we will try to check that the 
 -- Material exist,
 -- and in the material, all the texture exist.
--- restrict the var name inside the function
+-- restrict the var name inside the script
 
 _ENV = {_G = _G}
 _G.setmetatable(_ENV, {__index = _G})
@@ -30,22 +30,6 @@ function PushAsset(ast, targetQueue)
     targetQueue[newCount] = ast
     ast.index = newCount
     AssemblePart.logger('push called')
-end
-
-function PushMaterial(mat)
-    PushAsset(mat, AssemblePart.assembleSet.MaterialQueue)
-end
-
-function PushTexture(text)
-    PushAsset(text, AssemblePart.assembleSet.TextureQueue)
-end
-
-function PushGeometry(geo)
-    PushAsset(geo, AssemblePart.assembleSet.GeometryQueue)
-end
-
-function PushRenderItem(ritem)
-    PushAsset(ritem, AssemblePart.assembleSet.RenderItemQueue)
 end
 
 -- this is the funciton check a single geometry,
@@ -80,7 +64,42 @@ function CheckSingleRenderItem(renderItem)
     return isError
 end
 
--- assum that the sourceSet is a dict,
+function CheckSingleTexture(texture)
+    local isError = false
+    -- now just return false mean there is no error
+    return isError
+end
+
+function CheckSingleMaterial(material)
+    local isError = false
+    -- check diffuse map
+    
+    if material.diffuseMap ~= nil then
+        t = TexPart.TextureSet[material.diffuseMap]
+        
+        if t == nil then
+            AssemblePart.logger("missing diffuseMap")
+            isError = true
+        else
+            material.diffuseMapIndex = t.index
+        end
+    end
+    
+    
+    if material.normalMap ~= nil then
+        t = TexPart.TextureSet[material.normalMap]
+        
+        if t == nil then
+            AssemblePart.logger("missing normalMap")
+            isError = true
+        else
+            material.normalMapIndex = t.index
+        end
+    end
+    return isError
+end
+
+-- assum that the sourceSet is a table,
 -- the function will read all the key and index,
 -- passing the elemet to the function'checker',
 -- if checker return false, means no error, 
@@ -88,116 +107,22 @@ end
 function CheckRoutine(sourceSet, checker, targetQueue, falseMessage)
     -- do each check for the elemt
     local function doCheck(elemt, koi)
-        if checker(v, koi) then
+        if checker(elemt, koi) then
             -- error, do nothing
-            AssemblePart.logger(falseMessage, 'key Or Index:'..koi)
+            AssemblePart.logger('CheckRoutine Error:'..falseMessage, 'key Or Index:'..koi)
         else
             -- success
-            PushAsset(v, targetQueue)
+            PushAsset(elemt, targetQueue)
         end
     end
     
     -- for each key-value pairs
     for k, v in pairs(sourceSet) do
+        AssemblePart.logger('ck pairs:', k, v)
         doCheck(v, k)
     end
-    
-    -- for each array element
-    for i = 1, #sourceSet do
-        doCheck(sourceSet[i], i)
-    end
-end
--- check and push geometry
-function CheckGeometries(checker)
-    local haveErrorGeometry = false
-    for k, g in pairs(GeoPart.GeometrySet) do
-        local isErrorGeometry = false
-        
-        -- checker is a function for checking single geometry,
-        -- if there is any error, it wi
-        if checker(g) then
-            isErrorGeometry = true
-            haveErrorGeometry = true
-        else
-            PushGeometry(g)
-        end
-    end
-    return haveErrorGeometry
 end
 
--- check the renderItems
-function CheckRenderItems(checker)
-    
-    local haveErrorRitem = false
-    -- use a local var to refer to the set, 
-    -- because the name is too long.
-    local ritemSet = RItemPart.RenderItemSet
-    
-    -- from the ritem aspect.
-    for i = 1, #ritemSet do
-        
-        if checker(ritemSet[i]) then
-            -- notify the outer error flag.
-            haveErrorRitem = true
-        else
-            PushRenderItem(ritem)
-        end
-    end
-    
-    return haveErrorRitem
-end
-
--- check the Textures and push it into the queue
-function CheckTextures()
-    local haveErrorTexture = false
-    -- arrange texture this must before the material
-    for k, t in pairs(TexPart.TextureSet) do
-        local isErrorTexture = false
-        
-        PushTexture(t)
-    end
-    
-    return haveErrorTexture
-end
-
--- check and push the material
-function CheckMaterials()
-    local haveErrorMat = false
-    -- from the material aspect, missing any texture?
-    -- again, now we don't care about the real file.
-    for k, m in pairs(MatPart.MaterialSet) do
-        -- Is the material an error?
-        local isErrorMaterial = false
-        
-        t = TexPart.TextureSet[m.diffuseMap]
-        -- check diffuse map
-        if m.diffuseMap ~= nil and t == nil then
-            AssemblePart.logger("error: missing diffuseMap")
-            isErrorMaterial = true
-        elseif m.diffuseMap ~= nil then
-            m.diffuseMapIndex = t.index
-        end
-        
-        t = TexPart.TextureSet[m.normalMap]
-        -- check normal map
-        if m.normalMap ~= nil and t == nil then
-            AssemblePart.logger("error: missing normalMap")
-            isErrorMaterial = true
-        elseif m.normalMap ~= nil then
-            m.normalMapIndex = t.index
-        end
-        
-        -- some error
-        if isErrorMaterial then
-            m:showDetail()
-            -- notify the outer error flag.
-            haveErrorMat = true
-        else -- no error, add to a map using number as key.
-            PushMaterial(m)
-        end
-    end
-    return haveErrorMat
-end
 
 -- THE KEY FUNCTION TO BE RETURNED
 function Assemble()    
@@ -216,14 +141,36 @@ function Assemble()
     
     -- the Geomentry must be checked before the RenderItem
     AssemblePart.logger('ck geo')
-    isError = CheckGeometries(CheckSingleGeometry) or isError
+    isError = CheckRoutine(
+                GeoPart.GeometrySet,    -- from
+                CheckSingleGeometry,    -- checkerFunction
+                AssemblePart.assembleSet.GeometryQueue, --to
+                'Geometry check')       -- errorMessage
+            or isError;                 -- is there any error before
+            
     AssemblePart.logger('ck ritem')
-    isError = CheckRenderItems() or isError
+    isError = CheckRoutine(
+                RItemPart.RenderItemSet,    -- from
+                CheckSingleRenderItem,      -- checkerFunction
+                AssemblePart.assembleSet.RenderItemQueue, --to
+                'RenderItem check')         -- errorMessage
+            or isError;                     -- is there any error before
+    -- isError = CheckRenderItems() or isError
     -- the texture must be check before the Material
     AssemblePart.logger('ck tx')
-    isError = CheckTextures() or isError
+    isError = CheckRoutine(
+                TexPart.TextureSet,    -- from
+                CheckSingleTexture,      -- checkerFunction
+                AssemblePart.assembleSet.TextureQueue, --to
+                'Texture check')         -- errorMessage
+                or isError;                     -- is there any error before   
     AssemblePart.logger('ch mt')
-    isError = CheckMaterials() or isError
+    isError = CheckRoutine(
+                MatPart.MaterialSet,    -- from
+                CheckSingleMaterial,      -- checkerFunction
+                AssemblePart.assembleSet.MaterialQueue, --to
+                'Texture check')         -- errorMessage
+                or isError;                     -- is there any error before 
     
     -- conclude
     if isError then
