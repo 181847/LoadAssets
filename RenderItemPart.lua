@@ -13,7 +13,6 @@ RItemPart.RenderItem = RenderItem
 RItemPart.RenderLayers = {}
 RItemPart.RenderLayers.n = 0
 RItemPart.RenderItemSet = {}
-RItemPart.RenderItemSet.n = 0
 
 -- Add a new Layer with the layerName (if there is not the same name layer), 
 --and returen the name itself.
@@ -49,8 +48,7 @@ end
 
 -- Add the RenderItem to the global set.
 function RenderItem:addToGlobalSet()
-    RItemPart.RenderItemSet.n = RItemPart.RenderItemSet.n + 1;
-    RItemPart.RenderItemSet[RItemPart.RenderItemSet.n] = self
+    RItemPart.RenderItemSet[#RItemPart.RenderItemSet + 1] = self
 end
 
 function RenderItem:showDetail()
