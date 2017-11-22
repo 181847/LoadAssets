@@ -25,7 +25,7 @@ patternShape = '^g%s+(%w[%w%s]+)'
 patternNumber = '%d*%.?%d*'
 
 function module.addSearchPath(newpath)
-    module.searchpath = module.searchpath..';'newpat
+    module.searchpath = module.searchpath..';'..newpath
 end
 -- use this function to read a file,
 -- then return two table,
