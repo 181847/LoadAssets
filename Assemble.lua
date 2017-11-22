@@ -44,8 +44,14 @@ function CheckGeometries()
     for k, g in pairs(GeoPart.GeometrySet) do
         local isErrorGeometry = false
         
-        PushGeometry(g)
+        if g:readFile() then
+            PushGeometry(g)
+        else
+            isErrorGeometry = true
+            haveErrorGeometry = true
+        end
     end
+    return haveErrorGeometry
 end
 
 -- check the renderItems
