@@ -92,6 +92,28 @@ test_m_2 = Material.new("whiteMat")
 showDetail  |   向屏幕打印信息 |   无
 addToGlobalSet  |   添加材质到全局集中，等待汇集 | 无
 
+#TexturePart
+关于贴图材质的部分  
+获取模块：
+```lua
+Tex = require("TexturePart")
+```
+域   |   解释  |   类型
+-----|--------|--------
+Texture |   贴图类     | class
+TextureSet  | 以贴图的别名为键值存储贴图实例    | table
+
+##Texture
+贴图类，方便引用贴图文件
+属性名 |   解释  |   类型
+------|---------|-------
+name   |    贴图别名    |   string
+file    |   贴图文件    |   string
+
+方法名 |   解释  |   返回值
+------|---------|----------
+showDetail  |   向屏幕打印信息 |   无
+addToGlobalSet  |   添加贴图到全局集中，等待汇集 | 无
 
 
 本工程中使用lua定义的类全部都是来自[云风的个人空间 : Lua 中实现面向对象](https://blog.codingnow.com/cloud/LuaOO)
