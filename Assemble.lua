@@ -12,6 +12,16 @@ TexPart = require("TexturePart")
 GeoPart = require("GeometryPart")
 RItemPart = require("RenderItemPart")
 
+AssemblePart = {
+    assembleSet = {}
+}
+
+
+-- this is a function that for print the error message
+AssemblePart.logger = function(message, ...)
+    print('####'..message, ...)
+end
+
 -- useful function to push asset into some queue(
 -- assembleSet{MaterialQueue,TextureQueue, RenderItemQueue, GeometryQueue}.
 function PushAsset(ast, targetQueue)
@@ -19,43 +29,104 @@ function PushAsset(ast, targetQueue)
     targetQueue.n = newCount
     targetQueue[newCount] = ast
     ast.index = newCount
+    AssemblePart.logger('push called')
 end
 
 function PushMaterial(mat)
-    PushAsset(mat, assembleSet.MaterialQueue)
+    PushAsset(mat, AssemblePart.assembleSet.MaterialQueue)
 end
 
 function PushTexture(text)
-    PushAsset(text, assembleSet.TextureQueue)
+    PushAsset(text, AssemblePart.assembleSet.TextureQueue)
 end
 
 function PushGeometry(geo)
-    PushAsset(geo, assembleSet.GeometryQueue)
+    PushAsset(geo, AssemblePart.assembleSet.GeometryQueue)
 end
 
 function PushRenderItem(ritem)
-    PushAsset(ritem, assembleSet.RenderItemQueue)
+    PushAsset(ritem, AssemblePart.assembleSet.RenderItemQueue)
 end
 
+-- this is the funciton check a single geometry,
+-- return true or false to signal the caller 
+-- if there is any error,
+-- return false means sucess,
+-- return true means have error.
+function CheckSingleGeometry(geometry)
+    if geometry:readFile() then
+        AssemblePart.logger(
+            'Geometry Error:'..geometry.name, 
+            'cannot read the file:', 
+            geometry.file)
+        return true
+    else
+        return false
+    end
+end
 
+function CheckSingleRenderItem(renderItem)
+    local isError = false;
+    if GeoPart.GeometrySet[renderItem.geometry] == nil then
+        AssemblePart.logger('RenderItem Error:', 'cannot find geometry', '"'..ritem.geometry..' "')
+        isError = isError or true
+    end
+    
+    -- check material
+    if MatPart.MaterialSet[renderItem.material] == nil then
+        AssemblePart.logger('RenderItem Error:', 'cannot find material', '"'..ritem.material..' "')
+        isError = isError or true
+    end
+    return isError
+end
+
+-- assum that the sourceSet is a dict,
+-- the function will read all the key and index,
+-- passing the elemet to the function'checker',
+-- if checker return false, means no error, 
+-- add the target into the targetQueue.
+function CheckRoutine(sourceSet, checker, targetQueue, falseMessage)
+    -- do each check for the elemt
+    local function doCheck(elemt, koi)
+        if checker(v, koi) then
+            -- error, do nothing
+            AssemblePart.logger(falseMessage, 'key Or Index:'..koi)
+        else
+            -- success
+            PushAsset(v, targetQueue)
+        end
+    end
+    
+    -- for each key-value pairs
+    for k, v in pairs(sourceSet) do
+        doCheck(v, k)
+    end
+    
+    -- for each array element
+    for i = 1, #sourceSet do
+        doCheck(sourceSet[i], i)
+    end
+end
 -- check and push geometry
-function CheckGeometries()
+function CheckGeometries(checker)
     local haveErrorGeometry = false
     for k, g in pairs(GeoPart.GeometrySet) do
         local isErrorGeometry = false
         
-        if g:readFile() then
-            PushGeometry(g)
-        else
+        -- checker is a function for checking single geometry,
+        -- if there is any error, it wi
+        if checker(g) then
             isErrorGeometry = true
             haveErrorGeometry = true
+        else
+            PushGeometry(g)
         end
     end
     return haveErrorGeometry
 end
 
 -- check the renderItems
-function CheckRenderItems()
+function CheckRenderItems(checker)
     
     local haveErrorRitem = false
     -- use a local var to refer to the set, 
@@ -65,26 +136,7 @@ function CheckRenderItems()
     -- from the ritem aspect.
     for i = 1, #ritemSet do
         
-        -- Is the Ritem an error?
-        local isErrorRitem = false
-        
-        ritem = ritemSet[i]
-        
-        -- check geometry, here we don't check if the obj file exist,
-        -- just the geometry.
-        if GeoPart.GeometrySet[ritem.geometry] == nil then
-            print("error: missing geometry")
-            isErrorRitem = true
-        end
-        
-        -- check material
-        if MatPart.MaterialSet[ritem.material] == nil then
-            print("error: missing material")
-            isErrorRitem = true
-        end
-        
-        if isErrorRitem then
-            ritem:showDetail()
+        if checker(ritemSet[i]) then
             -- notify the outer error flag.
             haveErrorRitem = true
         else
@@ -120,7 +172,7 @@ function CheckMaterials()
         t = TexPart.TextureSet[m.diffuseMap]
         -- check diffuse map
         if m.diffuseMap ~= nil and t == nil then
-            print("error: missing diffuseMap")
+            AssemblePart.logger("error: missing diffuseMap")
             isErrorMaterial = true
         elseif m.diffuseMap ~= nil then
             m.diffuseMapIndex = t.index
@@ -129,7 +181,7 @@ function CheckMaterials()
         t = TexPart.TextureSet[m.normalMap]
         -- check normal map
         if m.normalMap ~= nil and t == nil then
-            print("error: missing normalMap")
+            AssemblePart.logger("error: missing normalMap")
             isErrorMaterial = true
         elseif m.normalMap ~= nil then
             m.normalMapIndex = t.index
@@ -150,7 +202,7 @@ end
 -- THE KEY FUNCTION TO BE RETURNED
 function Assemble()    
     -- clear the previous queue
-    assembleSet = {
+    AssemblePart.assembleSet = {
         -- all the assets will be arrangeed into a array
         MaterialQueue = {n = 0}, 
         TextureQueue = {n = 0},
@@ -163,30 +215,30 @@ function Assemble()
     local isError = false
     
     -- the Geomentry must be checked before the RenderItem
-    print('ck geo')
-    isError = CheckGeometries()
-    print('ck ritem')
-    isError = CheckRenderItems()
+    AssemblePart.logger('ck geo')
+    isError = CheckGeometries(CheckSingleGeometry) or isError
+    AssemblePart.logger('ck ritem')
+    isError = CheckRenderItems() or isError
     -- the texture must be check before the Material
-    print('ck tx')
-    isError = CheckTextures()
-    print('ch mt')
-    isError = CheckMaterials()
+    AssemblePart.logger('ck tx')
+    isError = CheckTextures() or isError
+    AssemblePart.logger('ch mt')
+    isError = CheckMaterials() or isError
     
     -- conclude
     if isError then
-        print("Assembling failed!")
+        AssemblePart.logger("Assembling failed!")
     else
-        print("Assembling success.")
+        AssemblePart.logger("Assembling success.")
     end
     
     -- show the statics
-    print("Texture Count:"..assembleSet.TextureQueue.n)
-    print("Material Count:"..assembleSet.MaterialQueue.n)
-    print("Geometry Count:"..assembleSet.GeometryQueue.n)
-    print("RenderItem Count:"..assembleSet.RenderItemQueue.n)
+    AssemblePart.logger("Texture Count:"..AssemblePart.assembleSet.TextureQueue.n)
+    AssemblePart.logger("Material Count:"..AssemblePart.assembleSet.MaterialQueue.n)
+    AssemblePart.logger("Geometry Count:"..AssemblePart.assembleSet.GeometryQueue.n)
+    AssemblePart.logger("RenderItem Count:"..AssemblePart.assembleSet.RenderItemQueue.n)
     
-    return isError, assembleSet
+    return isError, AssemblePart.assembleSet
 end
 
 return Assemble
