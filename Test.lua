@@ -10,7 +10,7 @@ MatPart   = require("MaterialPart")
 GeoPart   = require("GeometryPart")
 RItemPart = require("RenderItemPart")
 
-assemble  = require("Assemble")
+AssembleModule  = require("Assemble")
 
 test_t_1 = Texture.new("brick", "d:/texture/brick.dds")
 test_t_2 = Texture.new("tree", "d:/texture/tree.dds")
@@ -50,7 +50,7 @@ test_g_2:addToGlobalSet()
 test_ritem_1:addToGlobalSet()
 test_ritem_2:addToGlobalSet()
 -- assemble again
-assemble()
+AssembleModule.Assemble()
 
 
 print()
