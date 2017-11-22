@@ -33,7 +33,7 @@ end
 -- second is the subMeshes,
 -- which for each subMesh name there are two index
 -- that indicate where the index start and end.
-function module.readFile(file, meshData, subMesh)    
+function module.readObjFile(file, meshData, subMesh)    
     -- extract the file name: 'Tank_0.obj' -> 'Tank_0'
     file = string.match(file, patternFileName) or file
     file, msg = package.searchpath(file, module.searchpath)
@@ -78,7 +78,7 @@ function module.readFile(file, meshData, subMesh)
                 -- we will use this to test if the subMesh
                 -- have the startIndex
                 ::startSubMesh::
-                subMesh[subName] = {0, 0}
+                subMesh[subName] = {startIndex = 0, endIndex = 0}
                 
                 -- read all the Indices
                 while not stop do
@@ -88,15 +88,15 @@ function module.readFile(file, meshData, subMesh)
                     -- we will set it as the startIndex
                     if type(arg) == 'number' then
                         -- is the index the first one ?
-                        if subMesh[subName][1] == 0 then
-                            subMesh[subName][1] = arg
+                        if subMesh[subName].startIndex == 0 then
+                            subMesh[subName].startIndex = arg
                             -- in case some subMesh only have one vertex
                             -- we will also set the end Index.
-                            subMesh[subName][2] = arg
+                            subMesh[subName].endIndex = arg
                         else
                             -- the start Index has been initialized,
                             -- set the end Index whenever we get a second number.
-                            subMesh[subName][2] = arg
+                            subMesh[subName].endIndex = arg
                         end
                     elseif type(arg) == 'string' then
                         -- we get a subMesh name,
@@ -106,9 +106,10 @@ function module.readFile(file, meshData, subMesh)
                     end
                 end -- while
             end -- while
-        end
+        end -- function
     )
     
+    -- start coroutine
     cor_addMesh(subMesh)
     
     -- read each line
@@ -148,8 +149,10 @@ function module.readFile(file, meshData, subMesh)
         subName = string.match(line, patternShape)
         --print("Debug: ", subName, patternShape, 'Line: ', line)
         
-        if subName ~= 'default' and subName then
-            -- add the subMesh, we will 
+        if subName and subName ~= 'default' then
+            -- add the subMesh, we will just pass the name
+            -- to the coroutine , it will take care of the 
+            -- name and indices.
             cor_addMesh(subName, false)
         end
     end
@@ -164,7 +167,7 @@ end
 -- This function is just for print the subMesh.
 function module.printSubMesh(sm)
     for k, v in pairs(sm) do
-        print(k, v)
+        print('SubMesh:', k, v)
         for ki, vi in pairs(v) do
             print(ki, vi)
         end
