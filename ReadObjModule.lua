@@ -5,6 +5,12 @@ module = {}
 
 md = require('MeshData')
 
+-- where to find the file
+module.searchpath = './?.obj;./Assets/Geometry/?.obj'
+
+-- use this pattern to extract the main file name
+patternFileName = '([%w%d_]*)%.obj$'
+
 patterPosition = 'v%s.*'
 patternNormal = 'vn%s.*'
 patternTexC = 'vt%s.*'
@@ -18,22 +24,32 @@ patternShape = '^g%s+(%w[%w%s]+)'
 
 patternNumber = '%d*%.?%d*'
 
-function addSubMesh(subMesh, name, startIndex, endIndex)
-    subMesh[name] = {startIndex, endIndex}
+function module.addSearchPath(newpath)
+    module.searchpath = module.searchpath..';'newpat
 end
-
 -- use this function to read a file,
 -- then return two table,
 -- one is the meshData,
 -- second is the subMeshes,
 -- which for each subMesh name there are two index
 -- that indicate where the index start and end.
-function module.readFile(file, meshData, subMesh)
-    file = io.open(file, 'r')
+function module.readFile(file, meshData, subMesh)    
+    -- extract the file name: 'Tank_0.obj' -> 'Tank_0'
+    file = string.match(file, patternFileName) or file
+    file, msg = package.searchpath(file, module.searchpath)
     
-    -- if file not exist return nil
+    -- if file not exist, return nil
     if not file then
-        return nil
+        return nil, 'cannot find the file'
+    else
+        -- notic that the file type changed,
+        -- string -> file
+        file = io.open(file, 'r')
+        
+        -- cannot open the file
+        if not file then
+            return nil, 'cannot open the file'
+        end
     end
     
     local meshData = meshData or md.new()
@@ -137,6 +153,11 @@ function module.readFile(file, meshData, subMesh)
             cor_addMesh(subName, false)
         end
     end
+    -- clean up
+    file:close()
+    -- send true for stop the coroutine
+    cor_addMesh(nil, true)
+    
     return meshData, subMesh
 end
 
