@@ -12,7 +12,24 @@ assembleSet  |  资源集合，所有被收集的资源在都在这里存储 |  
 logger  | 日志记录函数，汇集过程中发生的错误信息都会传递到这里  |  function
 **Assemble**  |  汇集函数，汇集所有资源，添加资源到assembleSet中，并且检查汇集过程是否有错误，比如引用的文件不存在，引用的材质别名不存在等错误 |  function
 
-##AssembleModule.Assemble
+##AssembleModule.**Assemble**
+最重要的函数，用于收集所有的资源，并且检查资源的正确性
+返回值序号 |   类型    |   解释
+-------|--------------|-----
+1  |  Boolean   |   true代表发生错误，false表示正常
+2  |  table |  直接将AssembleModule.assembleSet返回，方便对其进行操作
+
+
+#AssembleModule.assembleSet
+这个table中分别包含以下内容：
+域   | 解释    | 类型
+-----|---------|-----
+MaterialQueue  | 存储材质实例，内部以序号为键值存储材质以下同理  |  table
+TextureQueue  |  存储贴图实例 |  table
+GeometryQueue  |  几何网格实例 |  table
+RenderItemQueue  |  渲染物体实例 |  table
+上面提到的4个Queue都包含一个**n**域，存储了各个实例的总数，方便在C中遍历，
+
 
 #RItemPart
 包含所有和RenderItem相关的类定义和函数，以及一个全局的集合用来存储所有需要被获取的RenderItem对象。
@@ -66,6 +83,8 @@ FileModule  |   读取obj文件的函数模块    |   模块，table
 ------|---------|-------
 name    | 几何网格的名字，注意不要和实例的名字搞混了   |   string
 file    |   对应obj文件的名字，可以包含文件夹路径，程序会自动搜索这些文件      |    string
+meshData  |  调用汇集过程之后才存在，从obj文件提取的网格信息 | userData，Lua::MeshData 
+subMeshes  | 调用汇集过程之后才存在，从obj文件中读取到的子网格信息，一个子网格的名称为域，再存储一个**table{startIndex = *someNumber*, endIndex = *someNumber*}**  | table
 创建：
 ```lua
 test_g_1 = Geometry.new("box", "Tank.obj")
@@ -138,4 +157,4 @@ addToGlobalSet  |   添加贴图到全局集中，等待汇集 | 无
 
 
 
-本工程中使用lua定义的类全部都是来自[云风的个人空间 : Lua 中实现面向对象](https://blog.codingnow.com/cloud/LuaOO)
+本工程中使用lua定义类的方法来自[云风的个人空间 : Lua 中实现面向对象](https://blog.codingnow.com/cloud/LuaOO)
