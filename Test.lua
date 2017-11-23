@@ -5,10 +5,11 @@ _ENV = {_G = _G}
 -- set the metatable, find the missing var and function
 -- in the _G enviroment.
 _G.setmetatable(_ENV, {__index = _G})
+--[[
 TexPart   = require("TexturePart")
 MatPart   = require("MaterialPart")
 GeoPart   = require("GeometryPart")
-RItemPart = require("RenderItemPart")
+--]]
 
 AssembleModule  = require("Assemble")
 
@@ -68,5 +69,7 @@ print()
 test_ritem_1:showDetail()
 test_ritem_2:showDetail()
 print()
+
+RItemPart = require("RenderItemPart")
 RItemPart.ShowRenderLayers()
 print()
