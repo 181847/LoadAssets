@@ -1,5 +1,19 @@
 这是一个用Lua帮助加载 **模型**、**材质**、**贴图** 的工程。
 
+#AssembleModule
+获取：
+```lua
+AssembleModule  = require("Assemble")
+```
+汇集模块，在这个模块中定义函数用来收集所有的资源。
+域   |   解释  |   类型
+-----|--------|--------
+assembleSet  |  资源集合，所有被收集的资源在都在这里存储 |  table
+logger  | 日志记录函数，汇集过程中发生的错误信息都会传递到这里  |  function
+**Assemble**  |  汇集函数，汇集所有资源，添加资源到assembleSet中，并且检查汇集过程是否有错误，比如引用的文件不存在，引用的材质别名不存在等错误 |  function
+
+##AssembleModule.Assemble
+
 #RItemPart
 包含所有和RenderItem相关的类定义和函数，以及一个全局的集合用来存储所有需要被获取的RenderItem对象。
 调用
@@ -47,7 +61,7 @@ FileModule  |   读取obj文件的函数模块    |   模块，table
 
 ##Geometry
 存储和访问obj文件的类，在lua中我们为每一个geometry命名一个别名，在RenderItem中使用这个别名引用指定的Geometry。
-上面这段代码中，我们创建了一个名为box的geometry，实际的网格信息来自一个叫“Tank.obj”文件，有了这个名叫*box*的geometry，我们就可以在renderItem中引用这个geometry了。
+
 属性名 |   解释  |   类型
 ------|---------|-------
 name    | 几何网格的名字，注意不要和实例的名字搞混了   |   string
@@ -56,6 +70,7 @@ file    |   对应obj文件的名字，可以包含文件夹路径，程序会�
 ```lua
 test_g_1 = Geometry.new("box", "Tank.obj")
 ```
+上面这段代码中，我们创建了一个别名为*box*的geometry，实际的网格信息来自一个叫“Tank.obj”文件，有了这个名叫*box*的geometry，我们就可以在renderItem中引用这个geometry了。
 方法名 |   解释  |   返回值
 ------|---------|----------
 showDetail  |   向屏幕打印信息 |   无
@@ -71,12 +86,13 @@ MatPart = require("MaterialPart")
 域   |   解释  |   类型
 -----|--------|--------
 Material    |   材质类 |   class
-MaterialSet |   材质集合，以材质的名字(比如*box*)为键值，存储材质类的实例    |  table
+MaterialSet |   材质集合，以材质的名字(比如*whiteMat*)为键值，存储材质类的实例    |  table
 
 ##Material
 材质类，定义一个材质的漫反射、fresnelR、粗糙程度、漫反射贴图、法线贴图
 属性名 |   解释  |   类型
 ------|---------|-------
+name  | 材质的别名，能够在RenderItem中引用  |  string
 diffuseAlbedo   |   漫反射颜色，4个数字，RGBA |   table / array<number, 4>
 fresnelR        |   材质的固有反射属性，3个数字  | table / array<number, 3>
 roughness       |   粗糙程度            | number
@@ -110,10 +126,16 @@ TextureSet  | 以贴图的别名为键值存储贴图实例    | table
 name   |    贴图别名    |   string
 file    |   贴图文件    |   string
 
+创建
+```lua
+test_t_1 = Texture.new("brick", "texture/brick.dds")
+```
+上面创建了一个别名为brick的贴图，引用文件texture/brick.dds
 方法名 |   解释  |   返回值
 ------|---------|----------
 showDetail  |   向屏幕打印信息 |   无
 addToGlobalSet  |   添加贴图到全局集中，等待汇集 | 无
+
 
 
 本工程中使用lua定义的类全部都是来自[云风的个人空间 : Lua 中实现面向对象](https://blog.codingnow.com/cloud/LuaOO)
