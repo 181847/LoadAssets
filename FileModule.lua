@@ -1,3 +1,6 @@
+-- this is a module that contain useful function to read function,
+-- and it have searchpath allow us to check if the file exist
+
 _ENV = {_G = _G}
 _G.setmetatable(_ENV, {__index = _G})
 
@@ -6,7 +9,8 @@ module = {}
 md = require('MeshData')
 
 -- where to find the file
-module.searchpath = './?.obj;./Assets/Geometry/?.obj'
+module.searchpath = './?.obj;./Assets/Geometry/?.obj;'
+
 
 -- use this pattern to extract the main file name
 patternFileName = '([%w%d_]*)%.obj$'
@@ -25,8 +29,52 @@ patternShape = '^g%s+(%w[%w%s]+)'
 patternNumber = '%d*%.?%d*'
 
 function module.addSearchPath(newpath)
-    module.searchpath = module.searchpath..';'..newpath
+    module.searchpath = module.searchpath..newpath..';'
 end
+
+-- use this function to check the specific file exist in the search path,
+-- the name can contain folder sepretor such as 'Asset/Geometry/example.obj'
+-- the name must have the extension name.
+function module.findFile(filename)
+    -- for example, 
+    -- seperate 'Asset/Geometry/example.obj' to 'Asset/Geometry/example' and 'obj'
+    local pureName, extension = string.match(filename, '(.-)%.(%w-)$')
+    
+    if not extension then
+        return nil, 'missing extension name:'..filename
+    end
+    
+    -- first we will replace the '?' with the pureName
+    local replaceResult = string.gsub(module.searchpath, '(%?)', 
+        function(cap)
+            return pureName
+        end
+    )
+    
+    -- then for each single file path, we test it with the extension name
+    -- use a local var to store the correct file name, here we use the closure
+    local correctFile = ''
+    string.gsub(replaceResult, '([^;]*);', 
+        function(cap)
+            if string.match(cap, '.*%.'..extension) then
+                correctFile = cap
+            end
+            -- here we don't care about the replacement result,
+            -- so just return an empty string.
+            return ''
+        end
+    )
+    
+    -- is the file exist ?
+    local file = io.open(correctFile, 'r')
+    if file then
+        file:close()
+        return correctFile
+    else
+        return nil, 'file does not exist:'..filename
+    end
+end
+
 -- use this function to read a file,
 -- then return two table,
 -- one is the meshData,
