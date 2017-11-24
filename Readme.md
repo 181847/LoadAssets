@@ -1,6 +1,6 @@
 这是一个用Lua帮助加载 **模型**、**材质**、**贴图** 的工程。
 
-#AssembleModule
+# AssembleModule
 获取：
 
 ```lua
@@ -15,7 +15,7 @@ assembleSet  |  资源集合，所有被收集的资源在都在这里存储 |  
 logger  | 日志记录函数，汇集过程中发生的错误信息都会传递到这里  |  function
 **Assemble**  |  汇集函数，汇集所有资源，添加资源到assembleSet中，并且检查汇集过程是否有错误，比如引用的文件不存在，引用的材质别名不存在等错误 |  function
 
-##AssembleModule.**Assemble**
+##  AssembleModule.**Assemble**
 最重要的函数，用于收集所有的资源，并且检查资源的正确性
 
 返回值序号 |   类型    |   解释
@@ -24,7 +24,7 @@ logger  | 日志记录函数，汇集过程中发生的错误信息都会传递�
 2  |  table |  直接将AssembleModule.assembleSet返回，方便对其进行操作
 
 
-#AssembleModule.assembleSet
+#  AssembleModule.assembleSet
 这个table中分别包含以下内容：
 
 域   | 解释    | 类型
@@ -37,7 +37,7 @@ RenderItemQueue  |  渲染物体实例 |  table
 上面提到的4个Queue都包含一个**n**域，存储了各个实例的总数，方便在C中遍历，
 
 
-#RItemPart
+#  RItemPart
 包含所有和RenderItem相关的类定义和函数，以及一个全局的集合用来存储所有需要被获取的RenderItem对象。
 调用
 
@@ -56,7 +56,7 @@ AddRenderLayer  |   传入一个字符串，添加一个渲染层，对于已存
 ShowRenderLayers    | 显示所有的RenderLayer  |   function
 
 
-##RenderItem
+##  RenderItem
 这是一个全局类，如果已经加载了RItemPart就可以在任何地方随处调用，这个类的实例包含以下关键属性 *（这不是全部）*。
 
 属性名 |   解释  |   类型
@@ -78,7 +78,7 @@ test_ritem_1 = RenderItem.new('box', 'dirtyBricks', 'opaqueLayer')
 showDetail  |   向屏幕打印信息 |   无
 addToGlobalSet  |   将当前的RenderItem添加到全局集合中，这样一来，这个RenderLayer才会被程序收集起来 | 无
 
-#GeoPart
+# GeoPart
 关于网格物体的信息模块，包含涉及到读取obj文件中的网格信息等，获取模块：
 
 ```lua
@@ -93,7 +93,7 @@ MeshData    |   C库函数，包含一个new函数，能够创建一个meshData�
 FileModule  |   读取obj文件的函数模块    |   模块，table
 
 
-##Geometry
+## Geometry
 存储和访问obj文件的类，在lua中我们为每一个geometry命名一个别名，在RenderItem中使用这个别名引用指定的Geometry。
 
 属性名 |   解释  |   类型
@@ -117,7 +117,7 @@ showDetail  |   向屏幕打印信息 |   无
 addToGlobalSet  |   添加几何实例到全局集中，等待汇集 | 无
 readFile        | 读取obj文件，获取真实的网格信息，这个方法在汇集过程中自动调用 | 返回是否发生了错误，**true** 代表有错误发生，**false** 代表正常。
 
-#MatPart
+MatPart
 
 这是关于材质的部分  
 获取模块：
@@ -131,7 +131,7 @@ MatPart = require("MaterialPart")
 Material    |   材质类 |   class
 MaterialSet |   材质集合，以材质的名字(比如*whiteMat*)为键值，存储材质类的实例    |  table
 
-##Material
+## Material
 材质类，定义一个材质的漫反射、fresnelR、粗糙程度、漫反射贴图、法线贴图
 
 属性名 |   解释  |   类型
@@ -156,7 +156,7 @@ test_m_2 = Material.new("whiteMat")
 showDetail  |   向屏幕打印信息 |   无
 addToGlobalSet  |   添加材质到全局集中，等待汇集 | 无
 
-#TexturePart
+# TexturePart
 
 关于贴图材质的部分  
 获取模块：
@@ -170,7 +170,7 @@ Tex = require("TexturePart")
 Texture |   贴图类     | class
 TextureSet  | 以贴图的别名为键值存储贴图实例    | table
 
-##Texture
+## Texture
 
 贴图类，方便引用贴图文件
 
