@@ -50,8 +50,8 @@ function CheckSingleGeometry(geometry)
 end
 
 function CheckSingleRenderItem(renderItem)
-    local isError = false;
-    geometry = GeoPart.GeometrySet[renderItem.geometry]
+    local isError   = false;
+    geometry        = GeoPart.GeometrySet[renderItem.geometry]
     
     -- is the geometry exist?
     if geometry == nil then
@@ -59,6 +59,20 @@ function CheckSingleRenderItem(renderItem)
         isError = true
     else
         renderItem.geometryIndex = geometry.index
+        
+        -- check the subMesh
+        local subMesh = geometry.subMeshes[renderItem.subMesh.name]
+        if  subMesh == nil then 
+            AssembleModule.logger(
+                'RenderItem Error:', 
+                'cannot find the submesh:', 
+                renderItem.subMesh.name)
+                isError = true
+        else
+            -- log the start and end index
+            renderItem.subMesh.startIndex   = subMesh.startIndex
+            renderItem.subMesh.endIndex     = subMesh.endIndex
+        end
     end
     
     -- check material
