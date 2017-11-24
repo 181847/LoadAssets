@@ -58,9 +58,12 @@ end
 
 function RenderItem:showDetail()
     print("******* One RenderItem *********")
-    print("Geometry:\t"..self.geometry)
-    print("Material:\t"..self.material)
-    print("Render Layer:\t"..self.renderLayer)
+    print("Geometry",           self.geometry)
+    print("SubMesh",            self.subMesh.name)
+        print("\tstartIndex:",  self.subMesh.startIndex)
+        print("\tendIndex:",    self.subMesh.endIndex)
+    print("Material:",          self.material)
+    print("Render Layer:",      self.renderLayer)
 end
 
 return RItemPart
