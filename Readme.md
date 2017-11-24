@@ -192,6 +192,8 @@ test_t_1 = Texture.new("brick", "texture/brick.dds")
 showDetail  |   向屏幕打印信息 |   无
 addToGlobalSet  |   添加贴图到全局集中，等待汇集 | 无
 
+# 提示
+上面提到过的RenderItem、Geometry、Mateiral、Texture在汇集之后，都会添加一个index域 *（已经调用过addToGlobalSet()）*， 用来表示在对应的assembleSet.xxxxQueue 中的序号。
 
 
 本工程中使用lua定义类的方法来自[云风的个人空间 : Lua 中实现面向对象](https://blog.codingnow.com/cloud/LuaOO)
