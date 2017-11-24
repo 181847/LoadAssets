@@ -40,10 +40,15 @@ end
 -- no matter how many groups in the file.
 -- Remaind that the three argument are all string,
 -- we don't use any reference in different object.
-function RenderItem:ctor(geoName, material, renderLayerName)
-    self.geometry = geoName
-    self.renderLayer = RItemPart.AddRenderLayer(renderLayerName)
-    self.material = material
+function RenderItem:ctor(geoName, subMeshName, material, renderLayerName)
+    self.geometry       = geoName
+    self.renderLayer    = RItemPart.AddRenderLayer(renderLayerName)
+    self.material       = material
+    -- subMesh is a table which will contain the
+    -- corresponding subMesh in the geometry,
+    -- after the assemble stage,
+    -- the table will add another to field(startIndex, endIndex).
+    self.subMesh        = {name = subMeshName}
 end
 
 -- Add the RenderItem to the global set.
