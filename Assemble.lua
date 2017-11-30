@@ -38,25 +38,25 @@ end
 -- return false means sucess,
 -- return true means have error.
 function CheckSingleGeometry(geometry)
-    if geometry:readFile() then
+    if not geometry:readFile() then
         AssembleModule.logger(
             'Geometry Error:'..geometry.name, 
             'cannot read the file:', 
             geometry.file)
-        return true
-    else
         return false
+    else
+        return true
     end
 end
 
 function CheckSingleRenderItem(renderItem)
-    local isError   = false;
+    local success   = true;
     geometry        = GeoPart.GeometrySet[renderItem.geometry]
     
     -- is the geometry exist?
     if geometry == nil then
         AssembleModule.logger('RenderItem Error:', 'cannot find geometry', '"'..ritem.geometry..' "')
-        isError = true
+        success = false
     else
         renderItem.geometryIndex = geometry.index
         
@@ -67,7 +67,7 @@ function CheckSingleRenderItem(renderItem)
                 'RenderItem Error:', 
                 'cannot find the submesh:', 
                 renderItem.subMesh.name)
-                isError = true
+                success = false
         else
             -- log the start and end index
             renderItem.subMesh.startIndex   = subMesh.startIndex
@@ -78,45 +78,45 @@ function CheckSingleRenderItem(renderItem)
     -- check material
     if MatPart.MaterialSet[renderItem.material] == nil then
         AssembleModule.logger('RenderItem Error:', 'cannot find material', '"'..ritem.material..' "')
-        isError = true
+        success = false
     end
-    return isError
+    return success
 end
 
 function CheckSingleTexture(texture)
-    local isError = false
+    local success = true
     -- now just return false mean there is no error
-    return isError
+    return success
 end
 
 function CheckSingleMaterial(material)
-    local isError = false
+    local success = true
     -- check diffuse map
     
     -- have diffuseMap
-    if material.diffuseMap ~= nil then
+    if material.diffuseMap then
         t = TexPart.TextureSet[material.diffuseMap]
         
-        if t == nil then
+        if not t then
             AssembleModule.logger("missing diffuseMap")
-            isError = true
+            success = false
         else
             material.diffuseMapIndex = t.index
         end
     end
     
     -- have normalMap
-    if material.normalMap ~= nil then
+    if material.normalMap then
         t = TexPart.TextureSet[material.normalMap]
         
-        if t == nil then
+        if not t then
             AssembleModule.logger("missing normalMap")
-            isError = true
+            success = false
         else
             material.normalMapIndex = t.index
         end
     end
-    return isError
+    return success
 end
 
 -- assum that the sourceSet is a table,
@@ -128,21 +128,26 @@ end
 -- the falseMessage will be print to identify different routin.
 function CheckRoutine(sourceSet, checker, targetQueue, falseMessage)
     -- do each check for the elemt
+    local success = true
     local function doCheck(elemt, koi)
-        if checker(elemt, koi) then
+        if not checker(elemt, koi) then
             -- error, do nothing
             AssembleModule.logger('CheckRoutine Error:'..falseMessage, 'key Or Index:'..koi)
+            return false
         else
             -- success
             PushAsset(elemt, targetQueue)
+            return true
         end
     end
     
     -- for each key-value pairs
     for k, v in pairs(sourceSet) do
         AssembleModule.logger('ck pairs:', k, v)
-        doCheck(v, k)
+        success = success and doCheck(v, k)
     end
+    
+    return success
 end
 
 
@@ -157,48 +162,48 @@ function AssembleModule.Assemble()
         RenderItemQueue = {n = 0}
     }
     
-    
-    -- Is there any error with all the ritem?
-    local isError = false
+    local success = true
     
     -- the Geomentry must be checked before the RenderItem
     AssembleModule.logger('ck geo')
-    isError = CheckRoutine(
+    success = CheckRoutine(
                 GeoPart.GeometrySet,    -- from
                 CheckSingleGeometry,    -- checkerFunction
                 AssembleModule.assembleSet.GeometryQueue, --to
                 'Geometry check')       -- errorMessage
-            or isError;                 -- is there any error before
+            and success;                 -- is there any error before
             
     AssembleModule.logger('ck ritem')
-    isError = CheckRoutine(
+    success = CheckRoutine(
                 RItemPart.RenderItemSet,    -- from
                 CheckSingleRenderItem,      -- checkerFunction
                 AssembleModule.assembleSet.RenderItemQueue, --to
                 'RenderItem check')         -- errorMessage
-            or isError;                     -- is there any error before
-    -- isError = CheckRenderItems() or isError
+            and success;                     -- is there any error before
+    -- success = CheckRenderItems() or success
     -- the texture must be check before the Material
     AssembleModule.logger('ck tx')
-    isError = CheckRoutine(
+    success = CheckRoutine(
                 TexPart.TextureSet,    -- from
                 CheckSingleTexture,      -- checkerFunction
                 AssembleModule.assembleSet.TextureQueue, --to
                 'Texture check')         -- errorMessage
-                or isError;                     -- is there any error before   
+                and success;                     -- is there any error before   
+    
     AssembleModule.logger('ch mt')
-    isError = CheckRoutine(
+    success = CheckRoutine(
                 MatPart.MaterialSet,    -- from
                 CheckSingleMaterial,      -- checkerFunction
                 AssembleModule.assembleSet.MaterialQueue, --to
                 'Texture check')         -- errorMessage
-                or isError;                     -- is there any error before 
+                and success;                     -- is there any error before 
     
     -- conclude
-    if isError then
-        AssembleModule.logger("Assembling failed!")
-    else
+    print(success)
+    if success then
         AssembleModule.logger("Assembling success.")
+    else
+        AssembleModule.logger("Assembling failed!")
     end
     
     -- show the statics
@@ -207,7 +212,7 @@ function AssembleModule.Assemble()
     AssembleModule.logger("Geometry Count:"..AssembleModule.assembleSet.GeometryQueue.n)
     AssembleModule.logger("RenderItem Count:"..AssembleModule.assembleSet.RenderItemQueue.n)
     
-    return isError, AssembleModule.assembleSet
+    return success, AssembleModule.assembleSet
 end
 
 return AssembleModule
