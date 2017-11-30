@@ -6,7 +6,7 @@ _G.Geometry = class(FileObject)
 -- MeshData is a C Module which will store the vertices and indices,
 -- the information will be loaded from the specific *.obj file
 MeshData = require("MeshData")
-FileModule = require("ReadObjModule")
+FileModule = require("FileModule")
 
 local GeoPart = {}
 
@@ -47,7 +47,7 @@ subMeshes
         3
         15
 --]]  
--- if error happend return true
+-- if success return true else return false
 function Geometry:readFile()
     -- read the file,
     -- if the file dosen't exist,
@@ -56,9 +56,9 @@ function Geometry:readFile()
     if meshData and subMeshes then
         self.meshData = meshData
         self.subMeshes = subMeshes
-        return false
-    else
         return true
+    else
+        return false
     end        
 end
 
