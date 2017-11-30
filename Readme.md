@@ -20,7 +20,7 @@ logger  | 日志记录函数，汇集过程中发生的错误信息都会传递�
 
 返回值序号 |   类型    |   解释
 -------|--------------|-----
-1  |  Boolean   |   true代表发生错误，false表示正常
+1  |  Boolean   |   false代表发生错误，true表示正常
 2  |  table |  直接将AssembleModule.assembleSet返回，方便对其进行操作
 
 
