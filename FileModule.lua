@@ -101,7 +101,7 @@ function module.readObjFile(file, meshData, subMesh)
     end
     
     local meshData = meshData or md.new()
-    local subMesh = sumMesh or {}
+    local subMesh = subMesh or {}
     local vindex = 0
     
     function readNumbers(line)
