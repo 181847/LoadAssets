@@ -142,6 +142,8 @@ fresnelR        |   材质的固有反射属性，3个数字  | table / array<nu
 roughness       |   粗糙程度            | number
 diffuseMap      |   漫反射贴图别名，注意这**不**是贴图的文件名，和geometry类似， 只是一个贴图实例的别名，贴图由另外一个模块负责     |   string
 normalMap       |   法线贴图别名      | string
+diffuseMapIndex  | 在Assemble阶段之后会添加的成员，表明对应的diffuseMap的序号，在C++中获取这个序号就可以了  |  integer
+normalMapIndex  | Assemble阶段之后会添加的成员，表明对应的法线贴图的序号  |  integer
 
 创建：
 
